@@ -1,0 +1,3 @@
+[submodule "lib/libyt"]
+	path = lib/libyt
+	url = https://github.com/radams15/libyt
