@@ -57,8 +57,6 @@ MainFrame::MainFrame(Config* config, wxWindow *parent, wxWindowID id, const wxSt
 void MainFrame::AddVideo(Video_t* video, bool sort) {
     VideoBox* box = new VideoBox(VidScrollWin, video, this);
 
-    int NoChildren = VideoList->GetChildren().GetCount();
-
     VideoList->Prepend(box, 1, wxALL, 5);
 
     VideoList->Layout();
@@ -91,7 +89,7 @@ void MainFrame::OnChannel(wxCommandEvent &event) {
     ChannelSelectDlg* dlg = new ChannelSelectDlg(this, channels);
 
     int ret = dlg->ShowModal();
-    printf("Ret: %d\n", ret);
+
     if(ret != wxID_OK){
         return;
     }

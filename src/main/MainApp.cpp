@@ -10,6 +10,7 @@ MainApp::MainApp() : wxApp(){
     wxInitAllImageHandlers();
 
     conf = config_new("/home/rhys/.config/yt_saves.json.small", 0);
+    //conf = config_new("/home/rhys/.config/yt_saves.json", 0);
     conf->use_threading = 1;
 
 #if defined(__WXGTK3__) && USE_HEADERBAR
@@ -26,5 +27,6 @@ bool MainApp::OnInit() {
 }
 
 MainApp::~MainApp() {
+    config_save(conf);
     config_free(conf);
 }

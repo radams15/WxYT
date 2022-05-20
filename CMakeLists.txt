@@ -8,7 +8,7 @@ project(WxYT C CXX)
 
 set(CMAKE_CXX_STANDARD 11)
 
-option(HEADERBAR "Uses unified titlebar and toolbar (OSX/Gtk3 Only)" OFF)
+option(HEADERBAR "Uses unified titlebar and toolbar (OSX/Gtk3 Only)" ON)
 option(GTK_STYLE "Uses libhandy (Gtk3) / libgranite (Gtk3) styling" OFF)
 
 find_package(wxWidgets REQUIRED COMPONENTS core base adv html media)
