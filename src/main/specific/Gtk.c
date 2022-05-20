@@ -12,6 +12,31 @@ GraniteSettings* granite_settings;
 
 GtkSettings* settings;
 
+GtkWidget* find_evt_box(GtkWidget* parent){
+    if (GTK_IS_EVENT_BOX(parent)) {
+        return parent;
+    }
+
+    if (GTK_IS_BIN(parent)) {
+        GtkWidget *child = gtk_bin_get_child(GTK_BIN(parent));
+
+        return find_evt_box(child);
+    }
+
+    if (GTK_IS_CONTAINER(parent)) {
+        GList *children = gtk_container_get_children(GTK_CONTAINER(parent));
+        do{
+            GtkWidget* widget = find_evt_box(children->data);
+            if (widget != NULL) {
+                return widget;
+            }
+        }while ((children = g_list_next(children)) != NULL);
+    }
+
+    return NULL;
+}
+
+
 GtkWidget* find_toolbar(GtkWidget* parent){
     if (GTK_IS_TOOLBAR(parent)) {
         return parent;
@@ -69,7 +94,7 @@ void remove_from_parent(GtkWidget* widget){
 }
 
 GtkWidget* toolbar_to_headerbar(GtkToolbar* toolbar){
-    remove_from_parent(GTK_WIDGET(toolbar));
+    remove_from_parent(GTK_WIDGET(gtk_widget_get_parent(GTK_WIDGET(toolbar))));
 
 #ifdef USE_HANDY
     HdyHeaderBar* header = hdy_header_bar_new();
@@ -95,7 +120,7 @@ GtkWidget* toolbar_to_headerbar(GtkToolbar* toolbar){
     hdy_header_bar_set_title(header, "WxReddit");
 #else
     gtk_header_bar_set_show_close_button(header, TRUE);
-    gtk_header_bar_set_title(header, "WxReddit");
+    gtk_header_bar_set_title(header, "WxYT");
 #endif
 
     gtk_widget_set_visible(header, TRUE);
@@ -162,8 +187,6 @@ void on_color_scheme_change(){
 void tweak(void* window){
     GtkWidget* win = (GtkWidget*) window;
 
-    GtkApplication* app = gtk_window_get_application(win);
-    
     GtkToolbar* toolbar = GTK_TOOLBAR(g_object_ref(find_toolbar(win)));
     
 #ifdef USE_GRANITE

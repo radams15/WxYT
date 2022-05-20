@@ -9,16 +9,16 @@ project(WxYT C CXX)
 set(CMAKE_CXX_STANDARD 11)
 
 option(HEADERBAR "Uses unified titlebar and toolbar (OSX/Gtk3 Only)" OFF)
-option(GTK_STYLE "Uses libhandy (Gtk3) / libgranite (Gtk3) styling" ON)
+option(GTK_STYLE "Uses libhandy (Gtk3) / libgranite (Gtk3) styling" OFF)
 
-find_package(wxWidgets REQUIRED COMPONENTS core base adv html)
+find_package(wxWidgets REQUIRED COMPONENTS core base adv html media)
 find_package(PkgConfig REQUIRED)
 
 add_subdirectory(lib/libyt)
 
 include(${wxWidgets_USE_FILE})
 
-set(SOURCE src/main/main.cpp src/main/MainApp.cpp src/main/UI.cpp src/main/UI.cpp src/main/MainFrame.cpp src/main/MainFrame.h)
+set(SOURCE src/main/main.cpp src/main/MainApp.cpp src/main/UI.cpp src/main/UI.cpp src/main/MainFrame.cpp src/main/MainFrame.h src/main/VideoBox.cpp src/main/VideoBox.h src/main/ChannelSelectDlg.cpp src/main/ChannelSelectDlg.h)
 set(LIBS ${wxWidgets_LIBRARIES} -L${CMAKE_SOURCE_DIR}/lib)
 set(INCLUDE DIRS "")
 set(LINK_DIRS "")
@@ -36,21 +36,21 @@ if(UNIX AND NOT APPLE)
 
     find_package(Qt5 COMPONENTS Widgets)
 
-    if(${Qt5_FOUND})
-        set(SOURCE ${SOURCE} src/main/specific/Qt.cpp)
-    elseif(${GTK3_FOUND})
+    if(${GTK3_FOUND})
         set(SOURCE ${SOURCE} src/main/specific/Gtk.c)
+    elseif(${Qt5_FOUND})
+        set(SOURCE ${SOURCE} src/main/specific/Qt.cpp)
     endif()
 endif()
 
 add_executable(WxYT MACOSX_BUNDLE ${SOURCE})
 
-if(${Qt5_FOUND})
-    set(LIBS ${LIBS} Qt5::Widgets)
-elseif(${GTK3_FOUND})
+if(${GTK3_FOUND})
     set(INCLUDE_DIRS ${INCLUDE_DIRS} ${GTK3_INCLUDE_DIRS})
     set(LINK_DIRS ${LINK_DIRS} ${GTK3_LIBRARIES})
     set(LIBS ${LIBS} ${GTK3_LIBRARIES})
+elseif(${Qt5_FOUND})
+        set(LIBS ${LIBS} Qt5::Widgets)
 endif()
 
 if(HEADERBAR)
@@ -76,9 +76,9 @@ endif()
 
 target_include_directories(WxYT PRIVATE lib/libyt)
 
-include_directories(${INCLUDE_DIRS})
+include_directories(${INCLUDE_DIRS} lib/libyt/include)
 link_directories(${LINK_DIRS})
 
-target_link_libraries(WxYT yt ${LIBS})
+target_link_libraries(WxYT yt request ${LIBS})
 
 

@@ -7,11 +7,15 @@
 
 #include "UI.h"
 
+#include "../../data/channel.png.h"
+#include "../../data/home.png.h"
 #include "../../data/reload.png.h"
 
 ///////////////////////////////////////////////////////////////////////////
 
 BEGIN_EVENT_TABLE( MainFrameBase, wxFrame )
+	EVT_TOOL( ID_HOME, MainFrameBase::_wxFB_OnHome )
+	EVT_TOOL( ID_CHANNEL, MainFrameBase::_wxFB_OnChannel )
 	EVT_TOOL( ID_RELOAD, MainFrameBase::_wxFB_OnReload )
 END_EVENT_TABLE()
 
@@ -22,24 +26,28 @@ MainFrameBase::MainFrameBase( wxWindow* parent, wxWindowID id, const wxString& t
 	wxBoxSizer* bSizer1;
 	bSizer1 = new wxBoxSizer( wxVERTICAL );
 
-	m_toolBar1 = new wxToolBar( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTB_HORIZONTAL|wxTB_TEXT );
-	RelTool = m_toolBar1->AddTool( ID_RELOAD, wxT("Reload"), reload_png_to_wx_bitmap(), wxNullBitmap, wxITEM_NORMAL, wxEmptyString, wxT("Reloads the current page"), NULL );
+	MainTB = new wxToolBar( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTB_HORIZONTAL|wxTB_TEXT );
+	HomeBtn = MainTB->AddTool( ID_HOME, wxT("Home"), home_png_to_wx_bitmap(), wxNullBitmap, wxITEM_NORMAL, wxEmptyString, wxT("Goes home to all subscriptions"), NULL );
 
-	m_toolBar1->AddSeparator();
+	ChannelBtn = MainTB->AddTool( ID_CHANNEL, wxT("Channel"), channel_png_to_wx_bitmap(), wxNullBitmap, wxITEM_NORMAL, wxEmptyString, wxT("Selects the channel to view"), NULL );
 
-	m_toolBar1->Realize();
+	MainTB->AddSeparator();
 
-	bSizer1->Add( m_toolBar1, 1, wxEXPAND, 5 );
+	RelTool = MainTB->AddTool( ID_RELOAD, wxT("Reload"), reload_png_to_wx_bitmap(), wxNullBitmap, wxITEM_NORMAL, wxEmptyString, wxT("Reloads the current page"), NULL );
 
-	ContentScrollWin = new wxScrolledWindow( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxHSCROLL|wxVSCROLL );
-	ContentScrollWin->SetScrollRate( 5, 5 );
-	ContentSizer = new wxBoxSizer( wxVERTICAL );
+	MainTB->Realize();
+
+	bSizer1->Add( MainTB, 1, wxEXPAND, 5 );
+
+	VidScrollWin = new wxScrolledWindow( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxHSCROLL|wxVSCROLL );
+	VidScrollWin->SetScrollRate( 5, 5 );
+	VideoList = new wxBoxSizer( wxVERTICAL );
 
 
-	ContentScrollWin->SetSizer( ContentSizer );
-	ContentScrollWin->Layout();
-	ContentSizer->Fit( ContentScrollWin );
-	bSizer1->Add( ContentScrollWin, 12, wxEXPAND | wxALL, 5 );
+	VidScrollWin->SetSizer( VideoList );
+	VidScrollWin->Layout();
+	VideoList->Fit( VidScrollWin );
+	bSizer1->Add( VidScrollWin, 12, wxEXPAND | wxALL, 5 );
 
 
 	this->SetSizer( bSizer1 );
@@ -53,7 +61,11 @@ MainFrameBase::~MainFrameBase()
 {
 }
 
-VideoBox::VideoBox( wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size, long style, const wxString& name ) : wxPanel( parent, id, pos, size, style, name )
+BEGIN_EVENT_TABLE( VideoBoxBase, wxPanel )
+	EVT_BUTTON( wxID_ANY, VideoBoxBase::_wxFB_OnPlayBtn )
+END_EVENT_TABLE()
+
+VideoBoxBase::VideoBoxBase( wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size, long style, const wxString& name ) : wxPanel( parent, id, pos, size, style, name )
 {
 	wxBoxSizer* bSizer4;
 	bSizer4 = new wxBoxSizer( wxVERTICAL );
@@ -74,6 +86,66 @@ VideoBox::VideoBox( wxWindow* parent, wxWindowID id, const wxPoint& pos, const w
 	this->Layout();
 }
 
-VideoBox::~VideoBox()
+VideoBoxBase::~VideoBoxBase()
+{
+}
+
+BEGIN_EVENT_TABLE( ChannelSelectDlgBase, wxDialog )
+	EVT_BUTTON( ID_CANCEL, ChannelSelectDlgBase::_wxFB_OnCancel )
+	EVT_BUTTON( ID_OK, ChannelSelectDlgBase::_wxFB_OnOK )
+END_EVENT_TABLE()
+
+ChannelSelectDlgBase::ChannelSelectDlgBase( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxDialog( parent, id, title, pos, size, style )
+{
+	this->SetSizeHints( wxDefaultSize, wxDefaultSize );
+
+	wxBoxSizer* bSizer5;
+	bSizer5 = new wxBoxSizer( wxHORIZONTAL );
+
+	wxString ChannelChoiceChoices[] = { wxT("All") };
+	int ChannelChoiceNChoices = sizeof( ChannelChoiceChoices ) / sizeof( wxString );
+	ChannelChoice = new wxChoice( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, ChannelChoiceNChoices, ChannelChoiceChoices, 0 );
+	ChannelChoice->SetSelection( 0 );
+	bSizer5->Add( ChannelChoice, 5, wxALL, 5 );
+
+	CancelBtn = new wxButton( this, ID_CANCEL, wxT("Cancel"), wxDefaultPosition, wxDefaultSize, 0 );
+	bSizer5->Add( CancelBtn, 1, wxALL, 5 );
+
+	OkBtn = new wxButton( this, ID_OK, wxT("OK"), wxDefaultPosition, wxDefaultSize, 0 );
+	bSizer5->Add( OkBtn, 1, wxALL, 5 );
+
+
+	this->SetSizer( bSizer5 );
+	this->Layout();
+
+	this->Centre( wxBOTH );
+}
+
+ChannelSelectDlgBase::~ChannelSelectDlgBase()
+{
+}
+
+PlayerDlgBase::PlayerDlgBase( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxFrame( parent, id, title, pos, size, style )
+{
+	this->SetSizeHints( wxDefaultSize, wxDefaultSize );
+
+	wxBoxSizer* bSizer6;
+	bSizer6 = new wxBoxSizer( wxVERTICAL );
+
+	MediaPlayer = new wxMediaCtrl( this, wxID_ANY, wxT(""), wxDefaultPosition, wxDefaultSize);
+	MediaPlayer->SetPlaybackRate(1);
+	MediaPlayer->SetVolume(1);
+
+	MediaPlayer->Stop();
+	bSizer6->Add( MediaPlayer, 1, wxALL|wxEXPAND, 5 );
+
+
+	this->SetSizer( bSizer6 );
+	this->Layout();
+
+	this->Centre( wxBOTH );
+}
+
+PlayerDlgBase::~PlayerDlgBase()
 {
 }

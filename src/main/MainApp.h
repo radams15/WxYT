@@ -10,13 +10,19 @@
 #include <wx/wx.h>
 #endif
 
+#include <Config.h>
+#include "MainFrame.h"
+
 class MainApp : public wxApp {
 private:
+    Config* conf;
+    MainFrame* frame;
 
 public:
     virtual bool OnInit();
 
 	MainApp();
+	~MainApp();
 };
 
 

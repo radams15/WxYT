@@ -3,23 +3,28 @@
 //
 
 #include "MainApp.h"
-#include "MainFrame.h"
 
 extern "C" void gtk_tweak_setup();
 
 MainApp::MainApp() : wxApp(){
+    wxInitAllImageHandlers();
 
+    conf = config_new("/home/rhys/.config/yt_saves.json.small", 0);
+    conf->use_threading = 1;
+
+#if defined(__WXGTK3__) && USE_HEADERBAR
+    gtk_tweak_setup();
+#endif
 }
 
 bool MainApp::OnInit() {
-#ifdef __WXGTK3__
-    gtk_tweak_setup();
-#endif
+    frame = new MainFrame(conf, NULL);
 
-    wxInitAllImageHandlers();
-
-    MainFrame* frame = new MainFrame(NULL);
     frame->Show(true);
 
     return true;
+}
+
+MainApp::~MainApp() {
+    config_free(conf);
 }
