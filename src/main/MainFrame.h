@@ -21,7 +21,6 @@ protected:
 
     void OnHome( wxCommandEvent& event );
     void OnChannel( wxCommandEvent& event );
-    void OnReload( wxCommandEvent& event );
 
 public:
     MainFrame( Config* config, wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("YtClient"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 790,549 ), long style = wxDEFAULT_FRAME_STYLE|wxTAB_TRAVERSAL );

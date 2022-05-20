@@ -12,6 +12,7 @@
 #include "ChannelSelectDlg.h"
 
 #include "lib/librequest/include/request.h"
+#include "PlayerDlg.h"
 
 extern "C" void tweak(void* window);
 
@@ -69,14 +70,9 @@ void MainFrame::PlayVideo(Video_t *video) {
     wxString url = wxString::FromUTF8(CVideo);
     free((void*) CVideo);
 
-    PlayerDlgBase* player = new PlayerDlgBase(this);
+    PlayerDlg* player = new PlayerDlg(this, url);
 
-    wxURI viduri(url);
-
-    bool res = player->MediaPlayer->Load(viduri);
-
-    std::cout << "Res: " << res << std::endl;
-    player->MediaPlayer->Play();
+    //player->MediaPlayer->Play();
 
     player->Show();
 }
@@ -105,10 +101,6 @@ void MainFrame::OnChannel(wxCommandEvent &event) {
     }else{
         LoadChannel(dlg->Get());
     }
-}
-
-void MainFrame::OnReload(wxCommandEvent &event) {
-
 }
 
 void MainFrame::ClearList() {

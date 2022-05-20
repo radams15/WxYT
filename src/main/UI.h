@@ -28,6 +28,8 @@
 #include <wx/choice.h>
 #include <wx/dialog.h>
 #include <wx/mediactrl.h>
+#include <wx/slider.h>
+#include <wx/bmpbuttn.h>
 
 ///////////////////////////////////////////////////////////////////////////
 
@@ -42,21 +44,18 @@ class MainFrameBase : public wxFrame
 		// Private event handlers
 		void _wxFB_OnHome( wxCommandEvent& event ){ OnHome( event ); }
 		void _wxFB_OnChannel( wxCommandEvent& event ){ OnChannel( event ); }
-		void _wxFB_OnReload( wxCommandEvent& event ){ OnReload( event ); }
 
 
 	protected:
 		enum
 		{
 			ID_HOME = 1000,
-			ID_CHANNEL,
-			ID_RELOAD
+			ID_CHANNEL
 		};
 
 		wxToolBar* MainTB;
 		wxToolBarToolBase* HomeBtn;
 		wxToolBarToolBase* ChannelBtn;
-		wxToolBarToolBase* RelTool;
 		wxScrolledWindow* VidScrollWin;
 		wxBoxSizer* VideoList;
 		wxStatusBar* m_statusBar1;
@@ -64,7 +63,6 @@ class MainFrameBase : public wxFrame
 		// Virtual event handlers, override them in your derived class
 		virtual void OnHome( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnChannel( wxCommandEvent& event ) { event.Skip(); }
-		virtual void OnReload( wxCommandEvent& event ) { event.Skip(); }
 
 
 	public:
@@ -146,9 +144,30 @@ class ChannelSelectDlgBase : public wxDialog
 ///////////////////////////////////////////////////////////////////////////////
 class PlayerDlgBase : public wxFrame
 {
+	DECLARE_EVENT_TABLE()
 	private:
 
+		// Private event handlers
+		void _wxFB_OnSliderChange( wxCommandEvent& event ){ OnSliderChange( event ); }
+		void _wxFB_OnPlayPause( wxCommandEvent& event ){ OnPlayPause( event ); }
+
+
 	protected:
+		enum
+		{
+			ID_MEDIAPLAYER = 1000,
+			ID_PROGRESS,
+			ID_PLAY_PAUSE
+		};
+
+		wxSlider* ProgressSlider;
+		wxStaticText* PosLbl;
+		wxBitmapButton* PlayPauseBtn;
+
+		// Virtual event handlers, override them in your derived class
+		virtual void OnSliderChange( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnPlayPause( wxCommandEvent& event ) { event.Skip(); }
+
 
 	public:
 		wxMediaCtrl* MediaPlayer;
