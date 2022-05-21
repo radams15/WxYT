@@ -14,20 +14,25 @@ private:
 
     void ClearList();
 
+    void AddVideo(Video_t* video);
+    void AddChannel(Channel_t* channel);
+
     void LoadAll();
-    void LoadChannel(Channel_t* channel);
+    void LoadVideos(List_t* list);
+
+    void LoadChannels(List_t* list);
 
 protected:
 
     void OnHome( wxCommandEvent& event );
     void OnChannel( wxCommandEvent& event );
+    void OnSearch( wxCommandEvent& event );
 
 public:
     MainFrame( Config* config, wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("YtClient"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 790,549 ), long style = wxDEFAULT_FRAME_STYLE|wxTAB_TRAVERSAL );
 
-    void AddVideo(Video_t* video, bool sort=true);
-
     void PlayVideo(Video_t* video);
+    void LoadChannel(Channel_t* channel);
 };
 
 
