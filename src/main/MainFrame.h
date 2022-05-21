@@ -29,7 +29,7 @@ protected:
     void OnSearch( wxCommandEvent& event );
 
 public:
-    MainFrame( Config* config, wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("YtClient"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 790,549 ), long style = wxDEFAULT_FRAME_STYLE|wxTAB_TRAVERSAL );
+    MainFrame( Config* config, wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("WxYT"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 790,549 ), long style = wxDEFAULT_FRAME_STYLE|wxTAB_TRAVERSAL );
 
     void PlayVideo(Video_t* video);
     void LoadChannel(Channel_t* channel);

@@ -25,11 +25,11 @@
 #include <wx/stattext.h>
 #include <wx/button.h>
 #include <wx/panel.h>
-#include <wx/choice.h>
-#include <wx/dialog.h>
 #include <wx/mediactrl.h>
 #include <wx/slider.h>
 #include <wx/bmpbuttn.h>
+#include <wx/choice.h>
+#include <wx/dialog.h>
 #include <wx/textctrl.h>
 
 ///////////////////////////////////////////////////////////////////////////
@@ -121,19 +121,23 @@ class ChannelBoxBase : public wxPanel
 	private:
 
 		// Private event handlers
+		void _wxFB_OnSubBtn( wxCommandEvent& event ){ OnSubBtn( event ); }
 		void _wxFB_OnGoBtn( wxCommandEvent& event ){ OnGoBtn( event ); }
 
 
 	protected:
 		enum
 		{
-			ID_GO = 1000
+			ID_SUB = 1000,
+			ID_GO
 		};
 
 		wxStaticText* SubsLbl;
+		wxButton* SubBtn;
 		wxButton* GoBtn;
 
 		// Virtual event handlers, override them in your derived class
+		virtual void OnSubBtn( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnGoBtn( wxCommandEvent& event ) { event.Skip(); }
 
 
@@ -143,43 +147,6 @@ class ChannelBoxBase : public wxPanel
 		ChannelBoxBase( wxWindow* parent, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 500,123 ), long style = wxTAB_TRAVERSAL, const wxString& name = wxEmptyString );
 
 		~ChannelBoxBase();
-
-};
-
-///////////////////////////////////////////////////////////////////////////////
-/// Class ChannelSelectDlgBase
-///////////////////////////////////////////////////////////////////////////////
-class ChannelSelectDlgBase : public wxDialog
-{
-	DECLARE_EVENT_TABLE()
-	private:
-
-		// Private event handlers
-		void _wxFB_OnCancel( wxCommandEvent& event ){ OnCancel( event ); }
-		void _wxFB_OnOK( wxCommandEvent& event ){ OnOK( event ); }
-
-
-	protected:
-		enum
-		{
-			ID_CANCEL = 1000,
-			ID_OK
-		};
-
-		wxChoice* ChannelChoice;
-		wxButton* CancelBtn;
-		wxButton* OkBtn;
-
-		// Virtual event handlers, override them in your derived class
-		virtual void OnCancel( wxCommandEvent& event ) { event.Skip(); }
-		virtual void OnOK( wxCommandEvent& event ) { event.Skip(); }
-
-
-	public:
-
-		ChannelSelectDlgBase( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxEmptyString, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 560,233 ), long style = wxDEFAULT_DIALOG_STYLE );
-
-		~ChannelSelectDlgBase();
 
 };
 

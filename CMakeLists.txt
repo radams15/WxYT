@@ -18,7 +18,7 @@ add_subdirectory(lib/libyt)
 
 include(${wxWidgets_USE_FILE})
 
-set(SOURCE src/main/main.cpp src/main/MainApp.cpp src/main/UI.cpp src/main/UI.cpp src/main/MainFrame.cpp src/main/MainFrame.h src/main/VideoBox.cpp src/main/VideoBox.h src/main/ChannelSelectDlg.cpp src/main/ChannelSelectDlg.h src/main/PlayerDlg.cpp src/main/PlayerDlg.h src/main/SearchDlg.cpp src/main/SearchDlg.h src/main/ChannelBox.cpp src/main/ChannelBox.h)
+set(SOURCE src/main/main.cpp src/main/MainApp.cpp src/main/UI.cpp src/main/UI.cpp src/main/MainFrame.cpp src/main/MainFrame.h src/main/VideoBox.cpp src/main/VideoBox.h src/main/PlayerDlg.cpp src/main/PlayerDlg.h src/main/SearchDlg.cpp src/main/SearchDlg.h src/main/ChannelBox.cpp src/main/ChannelBox.h)
 set(LIBS ${wxWidgets_LIBRARIES} -L${CMAKE_SOURCE_DIR}/lib)
 set(INCLUDE DIRS "")
 set(LINK_DIRS "")

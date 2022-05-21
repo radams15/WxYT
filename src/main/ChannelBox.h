@@ -12,12 +12,16 @@ class ChannelBox : public ChannelBoxBase {
 private:
     Channel_t channel;
     wxWindow* Frame;
+    Config_t* conf;
+
+    bool IsSubscribed();
 
 protected:
     void OnGoBtn( wxCommandEvent& event );
+    void OnSubBtn( wxCommandEvent& event );
 
 public:
-    ChannelBox( wxWindow* parent, Channel_t* newchannel, wxWindow* Frame );
+    ChannelBox( Config_t* conf, wxWindow* parent, Channel_t* newchannel, wxWindow* Frame );
 
     Channel_t* GetChannel();
 };

@@ -9,7 +9,6 @@
 
 #include "MainFrame.h"
 #include "VideoBox.h"
-#include "ChannelSelectDlg.h"
 
 #include "lib/librequest/include/request.h"
 #include "PlayerDlg.h"
@@ -24,8 +23,6 @@ MainFrame::MainFrame(Config* config, wxWindow *parent, wxWindowID id, const wxSt
                      long style) : MainFrameBase(parent, id, title, pos, size, style){
 
     this->conf = config;
-
-    //printf("Frame: %x\n", frame);
 
 #ifdef __WXCOCOA__
     NSWindow* win = MacGetTopLevelWindowRef();
@@ -51,7 +48,7 @@ void MainFrame::AddVideo(Video_t* video) {
 }
 
 void MainFrame::AddChannel(Channel_t *channel) {
-    ChannelBox* box = new ChannelBox(VidScrollWin, channel, this);
+    ChannelBox* box = new ChannelBox(conf, VidScrollWin, channel, this);
 
     VideoList->Prepend(box, 1, wxALL, 5);
 
@@ -71,28 +68,11 @@ void MainFrame::PlayVideo(Video_t *video) {
 }
 
 void MainFrame::OnHome(wxCommandEvent &event) {
-    ClearList();
+    LoadAll();
 }
 
 void MainFrame::OnChannel(wxCommandEvent &event) {
-    wxVector<Channel_t*> channels(conf->subs->length);
-
-    for(int i=0 ; i<conf->subs->length ; i++){
-        channels[i] = (Channel_t*) (conf->subs->arry[i]);
-    }
-    ChannelSelectDlg* dlg = new ChannelSelectDlg(this, channels);
-
-    int ret = dlg->ShowModal();
-
-    if(ret != wxID_OK){
-        return;
-    }
-
-    if(dlg->IsAll()){
-        LoadAll();
-    }else{
-        LoadChannel(dlg->Get());
-    }
+    LoadChannels(conf->subs);
 }
 
 void MainFrame::ClearList() {
@@ -125,7 +105,6 @@ void MainFrame::OnSearch(wxCommandEvent &event) {
     SearchDlg* dlg = new SearchDlg(this);
 
     if(dlg->ShowModal() != wxID_OK){
-        printf("No!\n");
         return;
     }
 

@@ -6,10 +6,14 @@
 #include "MainApp.h"
 
 int main(int argc, char** argv) {
-    wxApp::SetInstance( new MainApp() );
+    MainApp* app = new MainApp();
+
+    wxApp::SetInstance( app );
     wxEntryStart(argc, argv);
     wxTheApp->CallOnInit();
     wxTheApp->OnRun();
+
+    delete app;
 
     return 0;
 }

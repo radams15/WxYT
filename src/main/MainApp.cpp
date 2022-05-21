@@ -28,5 +28,6 @@ bool MainApp::OnInit() {
 
 MainApp::~MainApp() {
     config_save(conf);
-    config_free(conf);
+
+    //config_free(conf);
 }

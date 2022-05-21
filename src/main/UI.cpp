@@ -34,7 +34,7 @@ MainFrameBase::MainFrameBase( wxWindow* parent, wxWindowID id, const wxString& t
 
 	MainTB->AddSeparator();
 
-	SearchBtn = MainTB->AddTool( ID_SEARCH, wxT("Search"), search_png_to_wx_bitmap(), wxNullBitmap, wxITEM_NORMAL, wxEmptyString, wxEmptyString, NULL );
+	SearchBtn = MainTB->AddTool( ID_SEARCH, wxT("Search"), search_png_to_wx_bitmap(), wxNullBitmap, wxITEM_NORMAL, wxEmptyString, wxT("Search for channels or videos"), NULL );
 
 	MainTB->Realize();
 
@@ -92,6 +92,7 @@ VideoBoxBase::~VideoBoxBase()
 }
 
 BEGIN_EVENT_TABLE( ChannelBoxBase, wxPanel )
+	EVT_BUTTON( ID_SUB, ChannelBoxBase::_wxFB_OnSubBtn )
 	EVT_BUTTON( ID_GO, ChannelBoxBase::_wxFB_OnGoBtn )
 END_EVENT_TABLE()
 
@@ -108,8 +109,20 @@ ChannelBoxBase::ChannelBoxBase( wxWindow* parent, wxWindowID id, const wxPoint& 
 	SubsLbl->Wrap( -1 );
 	bSizer4->Add( SubsLbl, 0, wxALL, 5 );
 
+	wxBoxSizer* bSizer20;
+	bSizer20 = new wxBoxSizer( wxHORIZONTAL );
+
+	SubBtn = new wxButton( this, ID_SUB, wxT("Subscribe"), wxDefaultPosition, wxDefaultSize, 0 );
+	bSizer20->Add( SubBtn, 0, wxALL, 5 );
+
+
+	bSizer20->Add( 0, 0, 1, wxEXPAND, 5 );
+
 	GoBtn = new wxButton( this, ID_GO, wxT("Go"), wxDefaultPosition, wxDefaultSize, 0 );
-	bSizer4->Add( GoBtn, 0, wxALL, 5 );
+	bSizer20->Add( GoBtn, 0, wxALL, 5 );
+
+
+	bSizer4->Add( bSizer20, 1, wxEXPAND, 5 );
 
 
 	this->SetSizer( bSizer4 );
@@ -117,41 +130,6 @@ ChannelBoxBase::ChannelBoxBase( wxWindow* parent, wxWindowID id, const wxPoint& 
 }
 
 ChannelBoxBase::~ChannelBoxBase()
-{
-}
-
-BEGIN_EVENT_TABLE( ChannelSelectDlgBase, wxDialog )
-	EVT_BUTTON( ID_CANCEL, ChannelSelectDlgBase::_wxFB_OnCancel )
-	EVT_BUTTON( ID_OK, ChannelSelectDlgBase::_wxFB_OnOK )
-END_EVENT_TABLE()
-
-ChannelSelectDlgBase::ChannelSelectDlgBase( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxDialog( parent, id, title, pos, size, style )
-{
-	this->SetSizeHints( wxDefaultSize, wxDefaultSize );
-
-	wxBoxSizer* bSizer5;
-	bSizer5 = new wxBoxSizer( wxHORIZONTAL );
-
-	wxString ChannelChoiceChoices[] = { wxT("All") };
-	int ChannelChoiceNChoices = sizeof( ChannelChoiceChoices ) / sizeof( wxString );
-	ChannelChoice = new wxChoice( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, ChannelChoiceNChoices, ChannelChoiceChoices, 0 );
-	ChannelChoice->SetSelection( 0 );
-	bSizer5->Add( ChannelChoice, 5, wxALL, 5 );
-
-	CancelBtn = new wxButton( this, ID_CANCEL, wxT("Cancel"), wxDefaultPosition, wxDefaultSize, 0 );
-	bSizer5->Add( CancelBtn, 1, wxALL, 5 );
-
-	OkBtn = new wxButton( this, ID_OK, wxT("OK"), wxDefaultPosition, wxDefaultSize, 0 );
-	bSizer5->Add( OkBtn, 1, wxALL, 5 );
-
-
-	this->SetSizer( bSizer5 );
-	this->Layout();
-
-	this->Centre( wxBOTH );
-}
-
-ChannelSelectDlgBase::~ChannelSelectDlgBase()
 {
 }
 
