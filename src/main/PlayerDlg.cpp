@@ -15,8 +15,11 @@ PlayerDlg::PlayerDlg(wxWindow *parent, wxString url) : PlayerDlgBase(parent){
     loaded = false;
 
     wxURI viduri(url);
+    bool res = MediaPlayer->Load(viduri);
 
-    MediaPlayer->Load(viduri);
+    std::cout << "Load: " << url.mb_str() << std::endl;
+
+    std::cerr << "Media loading: " << (res? "Success!" : "Fail!") << std::endl;
 
     timer = new wxTimer(this, ID_TICK_TIMER);
 }

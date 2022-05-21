@@ -18,7 +18,7 @@ ChannelBox::ChannelBox(Config_t* conf, wxWindow *parent, Channel_t *newchannel, 
     SubsLbl->SetLabel(wxString::Format(wxT("%ld"), channel.sub_count));
 
     if(IsSubscribed()){
-        SubBtn->SetLabel("Unsubscribe");
+        SubBtn->SetLabel(wxT("Unsubscribe"));
     }
 }
 
@@ -29,11 +29,11 @@ Channel_t* ChannelBox::GetChannel() {
 void ChannelBox::OnSubBtn(wxCommandEvent &event) {
     if(IsSubscribed()) {
         //TODO remove subscriber
-        SubBtn->SetLabel("Subscribe");
+        SubBtn->SetLabel(wxT("Subscribe"));
     } else {
         config_subs_add(conf, &channel);
 
-        SubBtn->SetLabel("Unsubscribe");
+        SubBtn->SetLabel(wxT("Unsubscribe"));
     }
 }
 

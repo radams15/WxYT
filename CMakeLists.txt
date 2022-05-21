@@ -11,7 +11,7 @@ set(CMAKE_CXX_STANDARD 11)
 option(HEADERBAR "Uses unified titlebar and toolbar (OSX/Gtk3 Only)" ON)
 option(GTK_STYLE "Uses libhandy (Gtk3) / libgranite (Gtk3) styling" OFF)
 
-find_package(wxWidgets REQUIRED COMPONENTS core base adv html media)
+find_package(wxWidgets REQUIRED COMPONENTS media core base adv)
 find_package(PkgConfig REQUIRED)
 
 add_subdirectory(lib/libyt)
@@ -80,5 +80,3 @@ include_directories(${INCLUDE_DIRS} lib/libyt/include)
 link_directories(${LINK_DIRS})
 
 target_link_libraries(WxYT yt request ${LIBS})
-
-

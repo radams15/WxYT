@@ -9,7 +9,8 @@ extern "C" void gtk_tweak_setup();
 MainApp::MainApp() : wxApp(){
     wxInitAllImageHandlers();
 
-    conf = config_new("/home/rhys/.config/yt_saves.json.small", 0);
+    conf = config_new("../yt_saves.json.small", 0);
+    //conf = config_new("/home/rhys/.config/yt_saves.json.small", 0);
     //conf = config_new("/home/rhys/.config/yt_saves.json", 0);
     conf->use_threading = 1;
 

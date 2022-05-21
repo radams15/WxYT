@@ -17,7 +17,7 @@
 
 extern "C" void tweak(void* window);
 
-pthread_mutex_t mutex;
+static pthread_mutex_t mutex;
 
 MainFrame::MainFrame(Config* config, wxWindow *parent, wxWindowID id, const wxString &title, const wxPoint &pos, const wxSize &size,
                      long style) : MainFrameBase(parent, id, title, pos, size, style){

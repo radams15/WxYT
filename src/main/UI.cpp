@@ -53,7 +53,7 @@ MainFrameBase::MainFrameBase( wxWindow* parent, wxWindowID id, const wxString& t
 
 	this->SetSizer( bSizer1 );
 	this->Layout();
-	m_statusBar1 = this->CreateStatusBar( 1, wxSTB_SIZEGRIP, wxID_ANY );
+	m_statusBar1 = this->CreateStatusBar( 1, 0, wxID_ANY );
 
 	this->Centre( wxBOTH );
 }
@@ -145,7 +145,7 @@ PlayerDlgBase::PlayerDlgBase( wxWindow* parent, wxWindowID id, const wxString& t
 	wxBoxSizer* bSizer6;
 	bSizer6 = new wxBoxSizer( wxVERTICAL );
 
-	MediaPlayer = new wxMediaCtrl( this, ID_MEDIAPLAYER, wxT(""), wxDefaultPosition, wxDefaultSize);
+	MediaPlayer = new wxMediaCtrl( this, ID_MEDIAPLAYER, wxT(""), wxDefaultPosition, wxDefaultSize, 0);
 	MediaPlayer->SetPlaybackRate(1);
 	MediaPlayer->SetVolume(1);
 
@@ -164,7 +164,7 @@ PlayerDlgBase::PlayerDlgBase( wxWindow* parent, wxWindowID id, const wxString& t
 
 	PlayPauseBtn = new wxBitmapButton( this, ID_PLAY_PAUSE, wxNullBitmap, wxDefaultPosition, wxDefaultSize, wxBU_AUTODRAW|0 );
 
-	PlayPauseBtn->SetBitmap( playpause_png_to_wx_bitmap() );
+	PlayPauseBtn->SetBitmapLabel( playpause_png_to_wx_bitmap() );
 	bSizer7->Add( PlayPauseBtn, 0, wxALL, 5 );
 
 
