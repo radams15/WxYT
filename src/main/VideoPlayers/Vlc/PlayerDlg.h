@@ -6,51 +6,42 @@
 #define WXYT_PLAYERDLG_H
 
 #include <wx/wx.h>
-
-#ifdef __WXGTK__
-#include <gdk/gdkx.h>
-#include <gtk/gtk.h>
-#endif
-
-#include <vlcpp/vlc.hpp>
-
-#include <climits>
+#include <vlc/vlc.h>
 
 class PlayerDlg : public wxFrame {
+
 private:
-    // Event handlers
-    void OnPositionChanged(wxThreadEvent& event);
-    void OnEndReached(wxThreadEvent& event);
+    void initVLC();
 
     void OnPlayPause(wxCommandEvent& event);
     void OnStop(wxCommandEvent& event);
     void OnPositionChanged_USR(wxCommandEvent& event);
+    void OnPositionChanged_VLC(wxCommandEvent& event);
+    void OnEndReached_VLC(wxCommandEvent& event);
     void OnVolumeChanged(wxCommandEvent& event);
     void OnVolumeClicked(wxMouseEvent& event);
     void OnTimelineClicked(wxMouseEvent& event);
-    void OnRendererWinCreated(wxWindowCreateEvent& event);
 
-    // Helper functions.
-    void Play();
-    void Pause();
-    void Stop();
-    void SetTimeline(float value);
-    void BindTimeline();
-    void UnbindTimeline();
+    void play();
+    void pause();
+    void stop();
+    void setTimeline(float value);
+    void connectTimeline();
 
-    // Video player controls.
-    wxButton* m_playPauseButton;
-    wxButton* m_stopButton;
-    wxSlider* m_timeline;
-    wxSlider* m_volumeSlider;
-    wxWindow* m_playerWidget;
+    wxButton *playpause_button;
+    wxButton *stop_button;
+    wxSlider *timeline;
+    wxSlider *volume_slider;
+    wxWindow *player_widget;
 
-    // VLC objects
-    VLC::Instance m_vlc;
-    VLC::MediaPlayer m_player;
+    libvlc_media_player_t *media_player;
+    libvlc_instance_t *vlc_inst;
+    libvlc_event_manager_t *vlc_evt_man;
 
 public:
     PlayerDlg(wxWindow *parent, wxString url);
+
+    ~PlayerDlg();
 };
 
 

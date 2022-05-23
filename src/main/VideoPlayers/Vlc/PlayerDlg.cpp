@@ -1,227 +1,189 @@
-//
-// Created by rhys on 5/23/22.
-//
+#include <wx/wx.h>
+#include <wx/filename.h>
+#include <vlc/vlc.h>
+#include <climits>
+
+#ifdef __WXGTK__
+#include <gdk/gdkx.h>
+#include <gtk/gtk.h>
+#define GET_XID(window) GDK_WINDOW_XWINDOW(GTK_PIZZA(window->m_wxwindow)->bin_window)
+#endif
 
 #include "PlayerDlg.h"
 
-wxDEFINE_EVENT(vlcEVT_POS,wxThreadEvent);
-wxDEFINE_EVENT(vlcEVT_END,wxThreadEvent);
+#define myID_PLAYPAUSE wxID_HIGHEST+1
+#define myID_STOP wxID_HIGHEST+2
+#define myID_TIMELINE wxID_HIGHEST+3
+#define myID_VOLUME wxID_HIGHEST+4
 
-static wxEvtHandler* gs_handler = NULL;
+#define TIMELINE_MAX (INT_MAX-9)
+#define VOLUME_MAX 100
 
-void OnPositionChanged_VLC(float f)
-{
-    if ( gs_handler )
-    {
-        wxThreadEvent* event = new wxThreadEvent(vlcEVT_POS);
-        event->SetPayload<float>(f);
-        wxQueueEvent(gs_handler,event);
-    }
-}
+DECLARE_EVENT_TYPE(vlcEVT_END, -1)
+DECLARE_EVENT_TYPE(vlcEVT_POS, -1)
+DEFINE_EVENT_TYPE(vlcEVT_END)
+DEFINE_EVENT_TYPE(vlcEVT_POS)
 
-void OnEndReached_VLC()
-{
-    if ( gs_handler )
-    {
-        wxThreadEvent* event = new wxThreadEvent(vlcEVT_END);
-        wxQueueEvent(gs_handler,event);
-    }
-}
+void OnPositionChanged_VLC(const libvlc_event_t *event, void *data);
+void OnEndReached_VLC(const libvlc_event_t *event, void *data);
 
-PlayerDlg::PlayerDlg(wxWindow *parent, wxString url) : wxFrame(parent, wxID_ANY, "Video Player") {
-    wxPanel* bgPanel = new wxPanel(this, wxID_ANY);
-
-    // Create the window the VLC will draw to.
-    m_playerWidget = new wxWindow(bgPanel, wxID_ANY);
-
-    // Create the timeline slider.
-    m_timeline = new wxSlider(bgPanel, wxID_ANY, 0, 0, TIMELINE_MAX);
-
-    // Create play button, the stop button, and the volume slider.
-    m_playPauseButton = new wxButton(bgPanel, wxID_ANY, "Play");
-    m_stopButton = new wxButton(bgPanel, wxID_ANY, "Stop");
-    m_volumeSlider = new wxSlider(bgPanel, wxID_ANY, VOLUME_MAX, 0, VOLUME_MAX);
-
-
-    // Set the video window black and disable the timeline and buttons.
-    m_playerWidget->SetBackgroundColour(*wxBLACK);
-    m_timeline->Enable(false);
-    m_playPauseButton->Enable(false);
-    m_stopButton->Enable(false);
-
-
-    // Use sizers to arrange the controls on the frame.
+PlayerDlg::PlayerDlg(wxWindow *parent, wxString url) : wxFrame(parent, wxID_ANY, "Video Player", wxDefaultPosition) {
+    // setup vbox
     wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
-    vbox->Add(m_playerWidget, wxSizerFlags(1).Expand().Border(wxALL));
-    vbox->Add(m_timeline, wxSizerFlags(0).Expand().Border(wxLEFT|wxRIGHT|wxBOTTOM));
+    this->SetSizer(vbox);
 
+    //setup player widget
+    player_widget = new wxWindow(this, wxID_ANY);
+    player_widget->SetBackgroundColour(wxColour(wxT("black")));
+    vbox->Add(player_widget, 1, wxEXPAND | wxALIGN_TOP);
+
+    //setup timeline slider
+    timeline = new wxSlider(this, myID_TIMELINE, 0, 0, TIMELINE_MAX);
+    timeline->Enable(false);
+    vbox->Add(timeline, 0, wxEXPAND);
+    connectTimeline();
+    timeline->Connect(myID_TIMELINE, wxEVT_LEFT_UP, wxMouseEventHandler(PlayerDlg::OnTimelineClicked));
+
+    //setup control panel
+    wxPanel *controlPanel = new wxPanel(this, wxID_ANY);
+
+    //setup hbox
     wxBoxSizer *hbox = new wxBoxSizer(wxHORIZONTAL);
-    hbox->Add(m_playPauseButton, wxSizerFlags(0).Border(wxLEFT|wxRIGHT|wxBOTTOM));
-    hbox->Add(m_stopButton,wxSizerFlags(0).Border(wxRIGHT|wxBOTTOM));
+    controlPanel->SetSizer(hbox);
+    vbox->Add(controlPanel, 0, wxEXPAND);
+
+    //setup controls
+    playpause_button = new wxButton(controlPanel, myID_PLAYPAUSE, wxT("Play"));
+    stop_button = new wxButton(controlPanel, myID_STOP, wxT("Stop"));
+    volume_slider = new wxSlider(controlPanel, myID_VOLUME, VOLUME_MAX, 0, VOLUME_MAX, wxDefaultPosition, wxSize(100, -1));
+    playpause_button->Enable(false);
+    stop_button->Enable(false);
+    hbox->Add(playpause_button);
+    hbox->Add(stop_button);
     hbox->AddStretchSpacer();
-    hbox->Add(m_volumeSlider,wxSizerFlags(0).Border(wxRIGHT|wxBOTTOM));
-    vbox->Add(hbox,wxSizerFlags(0).Expand());
+    hbox->Add(volume_slider);
+    Connect(myID_PLAYPAUSE, wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(PlayerDlg::OnPlayPause));
+    Connect(myID_STOP, wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler(PlayerDlg::OnStop));
+    Connect(myID_VOLUME, wxEVT_COMMAND_SLIDER_UPDATED, wxCommandEventHandler(PlayerDlg::OnVolumeChanged));
+    volume_slider->Connect(myID_VOLUME, wxEVT_LEFT_UP, wxMouseEventHandler(PlayerDlg::OnVolumeClicked));
 
-    bgPanel->SetSizer(vbox);
-    Layout();
+    //setup vlc
+    vlc_inst = libvlc_new(0, NULL);
+    media_player = libvlc_media_player_new(vlc_inst);
+    vlc_evt_man = libvlc_media_player_event_manager(media_player);
+    libvlc_event_attach(vlc_evt_man, libvlc_MediaPlayerEndReached, ::OnEndReached_VLC, this);
+    libvlc_event_attach(vlc_evt_man, libvlc_MediaPlayerPositionChanged, ::OnPositionChanged_VLC, this);
+    Connect(wxID_ANY, vlcEVT_END, wxCommandEventHandler(PlayerDlg::OnEndReached_VLC));
+    Connect(wxID_ANY, vlcEVT_POS, wxCommandEventHandler(PlayerDlg::OnPositionChanged_VLC));
 
+    Show(true);
+    initVLC();
 
-    // Bind event handlers for the wxWidgets controls.
-    m_playPauseButton->Bind(wxEVT_BUTTON, &PlayerDlg::OnPlayPause, this);
-    m_stopButton->Bind(wxEVT_BUTTON, &PlayerDlg::OnStop, this);
-    m_volumeSlider->Bind(wxEVT_SLIDER,&PlayerDlg::OnVolumeChanged,this);
+    libvlc_media_t *media;
+    media = libvlc_media_new_location(vlc_inst, (const char*) url.mb_str());
+    libvlc_media_player_set_media(media_player, media);
+    play();
+    libvlc_media_release(media);
+}
 
-    BindTimeline();
-    m_timeline->Bind(wxEVT_LEFT_UP, &PlayerDlg::OnTimelineClicked,this);
-    m_volumeSlider->Bind(wxEVT_LEFT_UP, &PlayerDlg::OnVolumeClicked,this);
+PlayerDlg::~PlayerDlg() {
+    libvlc_media_player_release(media_player);
+    libvlc_release(vlc_inst);
+}
 
-    // Bind the events that will be thrown from VLC callbacks.
-    Bind(vlcEVT_POS, &PlayerDlg::OnPositionChanged, this);
-    Bind(vlcEVT_END, &PlayerDlg::OnEndReached, this);
-
-
-    // Set up the VLC objects.
-    m_vlc = VLC::Instance(0, nullptr);
-    m_player = VLC::MediaPlayer(m_vlc);
-
+void PlayerDlg::initVLC() {
 #ifdef __WXGTK__
-    // On GTK+, we have to wait until the window is actually created before we
-    // can tell VLC to use it for output. So wait for the window create event.
-    m_playerWidget->Bind(wxEVT_CREATE, &PlayerDlg::OnRendererWinCreated, this);
-#elif defined(__WXMSW__)
-    m_player.setHwnd(m_playerWidget->GetHandle());
-#endif
-
-    // Get the player's event manager and register to callbacks.
-    VLC::MediaPlayerEventManager& eventManager = m_player.eventManager();
-    eventManager.onPositionChanged(OnPositionChanged_VLC);
-    eventManager.onEndReached(OnEndReached_VLC);
-
-    // Set this frame to a global variable so that it can be used with the
-    // VLC callbacks.
-    gs_handler = this;
-
-    VLC::Media media(m_vlc, url.ToStdString(), VLC::Media::FromLocation);
-    m_player.setMedia(media);
-    Play();
-}
-
-
-void PlayerDlg::OnRendererWinCreated(wxWindowCreateEvent& event)
-{
-#ifdef __WXGTK__
-    m_player.setXwindow(gdk_x11_window_get_xid(gtk_widget_get_window(m_playerWidget->GetHandle())));
-
-    m_playerWidget->Unbind(wxEVT_CREATE,&PlayerDlg::OnRendererWinCreated,this);
-#endif
-}
-
-void PlayerDlg::OnPositionChanged(wxThreadEvent& event)
-{
-    float factor = event.GetPayload<float>();
-    SetTimeline(factor);
-}
-
-void PlayerDlg::OnEndReached(wxThreadEvent& event)
-{
-    Stop();
-}
-
-void PlayerDlg::OnPlayPause(wxCommandEvent& event)
-{
-    if ( m_player.isPlaying () )
-    {
-        Pause();
-    }
-    else
-    {
-        Play();
-    }
-}
-
-void PlayerDlg::OnStop(wxCommandEvent& event)
-{
-    Stop();
-}
-
-void PlayerDlg::OnPositionChanged_USR(wxCommandEvent& event)
-{
-    m_player.setPosition((float) event.GetInt() / (float) TIMELINE_MAX);
-}
-
-void PlayerDlg::OnVolumeChanged(wxCommandEvent& event)
-{
-    m_player.setVolume(m_volumeSlider->GetValue());
-}
-
-void PlayerDlg::OnVolumeClicked(wxMouseEvent& event)
-{
-    wxSize size = m_volumeSlider->GetSize();
-    float position = (float) event.GetX() / (float) size.GetWidth();
-    int volume = static_cast<int>(position*VOLUME_MAX);
-    m_volumeSlider->SetValue(volume);
-    m_player.setVolume(volume);
-    event.Skip();
-}
-
-void PlayerDlg::OnTimelineClicked(wxMouseEvent& event)
-{
-    wxSize size = m_timeline->GetSize();
-    float position = (float) event.GetX() / (float) size.GetWidth();
-    m_player.setPosition(position);
-    SetTimeline(position);
-    event.Skip();
-}
-
-void PlayerDlg::Play()
-{;
-    m_player.play();
-    m_playPauseButton->SetLabel("Pause");
-    m_playPauseButton->Enable(true);
-    m_stopButton->Enable(true);
-    m_timeline->Enable(true);
-}
-
-void PlayerDlg::Pause()
-{
-    m_player.pause();
-    m_playPauseButton->SetLabel("Play");
-}
-
-void PlayerDlg::Stop()
-{
-    Pause();
-#if LIBVLC_VERSION_INT >= LIBVLC_VERSION(4, 0, 0, 0)
-    m_player.stopAsync();
+    libvlc_media_player_set_xwindow(media_player, gdk_x11_window_get_xid(gtk_widget_get_window(player_widget->GetHandle())));
 #else
-    m_player.stop();
+    libvlc_media_player_set_hwnd(media_player, this->player_widget->GetHandle());
 #endif
-    m_stopButton->Enable(false);
-    SetTimeline(0.0);
-    m_timeline->Enable(false);
 }
 
-void PlayerDlg::SetTimeline(float value) {
-    if ( value < 0.0 )
-    {
-        value = 0.0;
+void PlayerDlg::OnPlayPause(wxCommandEvent& event) {
+    if(libvlc_media_player_is_playing(media_player) == 1) {
+        pause();
     }
-    if ( value > 1.0 )
-    {
-        value = 1.0;
+    else {
+        play();
     }
-
-    UnbindTimeline();
-    m_timeline->SetValue((int) (value * TIMELINE_MAX));
-    BindTimeline();
 }
 
-void PlayerDlg::BindTimeline()
-{
-    m_timeline->Bind(wxEVT_SLIDER, &PlayerDlg::OnPositionChanged_USR, this);
+void PlayerDlg::OnStop(wxCommandEvent& event) {
+    stop();
 }
 
-void PlayerDlg::UnbindTimeline()
-{
-    m_timeline->Unbind(wxEVT_SLIDER, &PlayerDlg::OnPositionChanged_USR, this);
+void PlayerDlg::OnPositionChanged_USR(wxCommandEvent& event) {
+    libvlc_media_player_set_position(media_player, (float) event.GetInt() / (float) TIMELINE_MAX);
+}
+
+void PlayerDlg::OnPositionChanged_VLC(wxCommandEvent& event) {
+    float factor = libvlc_media_player_get_position(media_player);
+    setTimeline(factor);
+}
+
+void PlayerDlg::OnEndReached_VLC(wxCommandEvent& event) {
+    stop();
+}
+
+void PlayerDlg::OnVolumeChanged(wxCommandEvent& event) {
+    libvlc_audio_set_volume(media_player, volume_slider->GetValue());
+}
+
+void PlayerDlg::OnVolumeClicked(wxMouseEvent& event) {
+    wxSize size = volume_slider->GetSize();
+    float position = (float) event.GetX() / (float) size.GetWidth();
+    volume_slider->SetValue(position*VOLUME_MAX);
+    libvlc_audio_set_volume(media_player, position*VOLUME_MAX);
+    event.Skip();
+}
+
+void PlayerDlg::OnTimelineClicked(wxMouseEvent& event) {
+    wxSize size = timeline->GetSize();
+    float position = (float) event.GetX() / (float) size.GetWidth();
+    libvlc_media_player_set_position(media_player, position);
+    setTimeline(position);
+    event.Skip();
+}
+
+void PlayerDlg::play() {
+    libvlc_media_player_play(media_player);
+    playpause_button->SetLabel(wxT("Pause"));
+    playpause_button->Enable(true);
+    stop_button->Enable(true);
+    timeline->Enable(true);
+}
+
+void PlayerDlg::pause() {
+    libvlc_media_player_pause(media_player);
+    playpause_button->SetLabel(wxT("Play"));
+}
+
+void PlayerDlg::stop() {
+    pause();
+    libvlc_media_player_stop(media_player);
+    stop_button->Enable(false);
+    setTimeline(0.0);
+    timeline->Enable(false);
+}
+
+void PlayerDlg::setTimeline(float value) {
+    if(value < 0.0) value = 0.0;
+    if(value > 1.0) value = 1.0;
+    Disconnect(myID_TIMELINE);
+    timeline->SetValue((int) (value * TIMELINE_MAX));
+    connectTimeline();
+}
+
+void PlayerDlg::connectTimeline() {
+    Connect(myID_TIMELINE, wxEVT_COMMAND_SLIDER_UPDATED, wxCommandEventHandler(PlayerDlg::OnPositionChanged_USR));
+}
+
+void OnPositionChanged_VLC(const libvlc_event_t *event, void *data) {
+    wxCommandEvent evt(vlcEVT_POS, wxID_ANY);
+    ((PlayerDlg*) data)->GetEventHandler()->AddPendingEvent(evt);
+}
+
+void OnEndReached_VLC(const libvlc_event_t *event, void *data) {
+    wxCommandEvent evt(vlcEVT_END, wxID_ANY);
+    ((PlayerDlg*) data)->GetEventHandler()->AddPendingEvent(evt);
 }
