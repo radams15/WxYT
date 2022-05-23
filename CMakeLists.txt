@@ -9,7 +9,9 @@ project(WxYT C CXX)
 set(CMAKE_CXX_STANDARD 11)
 
 option(HEADERBAR "Uses unified titlebar and toolbar (OSX/Gtk3 Only)" ON)
-option(GTK_STYLE "Uses libhandy (Gtk3) / libgranite (Gtk3) styling" OFF)
+option(GTK_STYLE "Uses libhandy (Gtk3) / libgranite (Gtk3) styling" ON)
+option(WX_PLAYER "Uses wxMediaCtrl to play videos" OFF)
+option(VLC_PLAYER "Uses libvlc to play videos" ON)
 
 find_package(wxWidgets REQUIRED COMPONENTS media core base adv)
 find_package(PkgConfig REQUIRED)
@@ -18,10 +20,18 @@ add_subdirectory(lib/libyt)
 
 include(${wxWidgets_USE_FILE})
 
-set(SOURCE src/main/main.cpp src/main/MainApp.cpp src/main/UI.cpp src/main/UI.cpp src/main/MainFrame.cpp src/main/MainFrame.h src/main/VideoBox.cpp src/main/VideoBox.h src/main/PlayerDlg.cpp src/main/PlayerDlg.h src/main/SearchDlg.cpp src/main/SearchDlg.h src/main/ChannelBox.cpp src/main/ChannelBox.h)
-set(LIBS ${wxWidgets_LIBRARIES} -L${CMAKE_SOURCE_DIR}/lib)
+set(SOURCE src/main/main.cpp src/main/MainApp.cpp src/main/UI.cpp src/main/UI.cpp src/main/MainFrame.cpp src/main/MainFrame.h src/main/VideoBox.cpp src/main/VideoBox.h src/main/specific/SearchDlg.cpp src/main/SearchDlg.h src/main/ChannelBox.cpp src/main/ChannelBox.h)
+set(LIBS ${wxWidgets_LIBRARIES} -L${CMAKE_SOURCE_DIR}/lib pthread)
 set(INCLUDE DIRS "")
 set(LINK_DIRS "")
+
+if(WX_PLAYER)
+    set(SOURCE ${SOURCE} src/main/VideoPlayers/Wx/PlayerDlg.cpp src/main/VideoPlayers/Wx/WxPlayer.cpp)
+endif()
+
+if(VLC_PLAYER)
+    set(SOURCE ${SOURCE} src/main/VideoPlayers/Vlc/PlayerDlg.cpp)
+endif()
 
 if(APPLE)
     set(SOURCE ${SOURCE} src/main/specific/Cocoa.mm)
@@ -35,6 +45,11 @@ if(UNIX AND NOT APPLE)
     pkg_check_modules(HANDY libhandy-1)
 
     find_package(Qt5 COMPONENTS Widgets)
+    
+    pkg_check_modules(GST gstreamer-video-1.0)
+    
+    set(LIBS ${LIBS} ${GST_LIBRARIES})
+    set(INCLUDE_DIRS ${LIBS} ${GST_INCLUDE_DIRS})
 
     if(${GTK3_FOUND})
         set(SOURCE ${SOURCE} src/main/specific/Gtk.c)
@@ -72,6 +87,15 @@ elseif("GTK_STYLE" AND "${HANDY_FOUND}")
     set(LIBS ${LIBS} ${HANDY_LIBRARIES})
     set(LINK_DIRS ${LINK_DIRS} ${HANDY_LIBRARIES})
     set(INCLUDE_DIRS ${INCLUDE_DIRS} ${HANDY_INCLUDE_DIRS})
+endif()
+
+if(WX_PLAYER)
+    target_compile_definitions(WxYT PRIVATE WX_PLAYER)
+endif()
+
+if(VLC_PLAYER)
+    target_compile_definitions(WxYT PRIVATE VLC_PLAYER)
+    set(LIBS ${LIBS} vlc)
 endif()
 
 target_include_directories(WxYT PRIVATE lib/libyt)

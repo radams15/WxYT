@@ -3,6 +3,7 @@
 //
 
 #include <iostream>
+
 #include "PlayerDlg.h"
 
 BEGIN_EVENT_TABLE( PlayerDlg, PlayerDlgBase )
@@ -15,11 +16,9 @@ PlayerDlg::PlayerDlg(wxWindow *parent, wxString url) : PlayerDlgBase(parent){
     loaded = false;
 
     wxURI viduri(url);
-    bool res = MediaPlayer->Load(viduri);
+    bool success = MediaPlayer->Load(viduri);
 
-    std::cout << "Load: " << url.mb_str() << std::endl;
-
-    std::cerr << "Media loading: " << (res? "Success!" : "Fail!") << std::endl;
+    std::cout << "Media loading: " << (success? "Success!" : "Fail!") << std::endl;
 
     timer = new wxTimer(this, ID_TICK_TIMER);
 }

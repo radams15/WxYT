@@ -6,7 +6,7 @@
 #define WXYT_PLAYERDLG_H
 
 #include <wx/timer.h>
-#include "UI.h"
+#include "WxPlayer.h"
 
 #define TICK_TIME 500
 

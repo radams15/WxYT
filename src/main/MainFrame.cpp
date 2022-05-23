@@ -11,9 +11,16 @@
 #include "VideoBox.h"
 
 #include "lib/librequest/include/request.h"
-#include "PlayerDlg.h"
 #include "SearchDlg.h"
 #include "ChannelBox.h"
+
+#ifdef WX_PLAYER
+#include "VideoPlayers/Wx/PlayerDlg.h"
+#endif
+
+#ifdef VLC_PLAYER
+#include "VideoPlayers/Vlc/PlayerDlg.h"
+#endif
 
 extern "C" void tweak(void* window);
 
@@ -50,7 +57,7 @@ void MainFrame::AddVideo(Video_t* video) {
 void MainFrame::AddChannel(Channel_t *channel) {
     ChannelBox* box = new ChannelBox(conf, VidScrollWin, channel, this);
 
-    VideoList->Prepend(box, 1, wxALL, 5);
+    VideoList->Add(box, 1, wxALL, 5);
 
     VideoList->Layout();
 }
@@ -60,10 +67,9 @@ void MainFrame::PlayVideo(Video_t *video) {
     wxString url = wxString::FromUTF8(CVideo);
     free((void*) CVideo);
 
+    std::cout << "Raw URL: " << url.mb_str() << std::endl;
+
     PlayerDlg* player = new PlayerDlg(this, url);
-
-    //player->MediaPlayer->Play();
-
     player->Show();
 }
 

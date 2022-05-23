@@ -2,7 +2,7 @@
 // Created by rhys on 21/05/22.
 //
 
-#include "SearchDlg.h"
+#include "../SearchDlg.h"
 
 void SearchDlg::OnCancel(wxCommandEvent &event) {
     wxDialog::EndModal(wxID_CANCEL);

@@ -25,9 +25,6 @@
 #include <wx/stattext.h>
 #include <wx/button.h>
 #include <wx/panel.h>
-#include <wx/mediactrl.h>
-#include <wx/slider.h>
-#include <wx/bmpbuttn.h>
 #include <wx/choice.h>
 #include <wx/dialog.h>
 #include <wx/textctrl.h>
@@ -147,45 +144,6 @@ class ChannelBoxBase : public wxPanel
 		ChannelBoxBase( wxWindow* parent, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 500,123 ), long style = wxTAB_TRAVERSAL, const wxString& name = wxEmptyString );
 
 		~ChannelBoxBase();
-
-};
-
-///////////////////////////////////////////////////////////////////////////////
-/// Class PlayerDlgBase
-///////////////////////////////////////////////////////////////////////////////
-class PlayerDlgBase : public wxFrame
-{
-	DECLARE_EVENT_TABLE()
-	private:
-
-		// Private event handlers
-		void _wxFB_OnSliderChange( wxCommandEvent& event ){ OnSliderChange( event ); }
-		void _wxFB_OnPlayPause( wxCommandEvent& event ){ OnPlayPause( event ); }
-
-
-	protected:
-		enum
-		{
-			ID_MEDIAPLAYER = 1000,
-			ID_PROGRESS,
-			ID_PLAY_PAUSE
-		};
-
-		wxSlider* ProgressSlider;
-		wxStaticText* PosLbl;
-		wxBitmapButton* PlayPauseBtn;
-
-		// Virtual event handlers, override them in your derived class
-		virtual void OnSliderChange( wxCommandEvent& event ) { event.Skip(); }
-		virtual void OnPlayPause( wxCommandEvent& event ) { event.Skip(); }
-
-
-	public:
-		wxMediaCtrl* MediaPlayer;
-
-		PlayerDlgBase( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxEmptyString, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 500,300 ), long style = wxDEFAULT_FRAME_STYLE|wxTAB_TRAVERSAL );
-
-		~PlayerDlgBase();
 
 };
 
