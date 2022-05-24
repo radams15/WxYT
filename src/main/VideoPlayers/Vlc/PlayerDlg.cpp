@@ -27,7 +27,7 @@ DEFINE_EVENT_TYPE(vlcEVT_POS)
 void OnPositionChanged_VLC(const libvlc_event_t *event, void *data);
 void OnEndReached_VLC(const libvlc_event_t *event, void *data);
 
-PlayerDlg::PlayerDlg(wxWindow *parent, wxString url) : wxFrame(parent, wxID_ANY, "Video Player", wxDefaultPosition) {
+PlayerDlg::PlayerDlg(wxWindow *parent, wxString url) : wxFrame(parent, wxID_ANY, wxT("Video Player"), wxDefaultPosition) {
     // setup vbox
     wxBoxSizer *vbox = new wxBoxSizer(wxVERTICAL);
     this->SetSizer(vbox);

@@ -13,7 +13,16 @@ option(GTK_STYLE "Uses libhandy (Gtk3) / libgranite (Gtk3) styling" ON)
 option(WX_PLAYER "Uses wxMediaCtrl to play videos" OFF)
 option(VLC_PLAYER "Uses libvlc to play videos" ON)
 
-find_package(wxWidgets REQUIRED COMPONENTS media core base adv)
+
+set(WX_COMPONENTS core base adv)
+
+if(WX_PLAYER)
+    set(WX_COMPONENTS media ${WX_COMPONENTS})
+endif()
+
+find_package(wxWidgets REQUIRED COMPONENTS ${WX_COMPONENTS})
+
+
 find_package(PkgConfig REQUIRED)
 
 add_subdirectory(lib/libyt)
@@ -31,6 +40,7 @@ endif()
 
 if(VLC_PLAYER)
     set(SOURCE ${SOURCE} src/main/VideoPlayers/Vlc/PlayerDlg.cpp)
+    set(LIBS ${LIBS} vlc)
 endif()
 
 if(APPLE)
@@ -57,6 +67,9 @@ if(UNIX AND NOT APPLE)
         set(SOURCE ${SOURCE} src/main/specific/Qt.cpp)
     endif()
 endif()
+
+include_directories(${INCLUDE_DIRS} lib/libyt/include)
+link_directories(${LINK_DIRS} ${CMAKE_CURRENT_SOURCE_DIR}/lib/vlc)
 
 add_executable(WxYT MACOSX_BUNDLE ${SOURCE})
 
@@ -95,12 +108,8 @@ endif()
 
 if(VLC_PLAYER)
     target_compile_definitions(WxYT PRIVATE VLC_PLAYER)
-    set(LIBS ${LIBS} vlc)
 endif()
 
-target_include_directories(WxYT PRIVATE lib/libyt)
-
-include_directories(${INCLUDE_DIRS} lib/libyt/include)
-link_directories(${LINK_DIRS})
+target_include_directories(WxYT PRIVATE lib/libyt lib/vlc)
 
 target_link_libraries(WxYT yt request ${LIBS})
