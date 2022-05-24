@@ -11,6 +11,14 @@ BEGIN_EVENT_TABLE( PlayerDlg, PlayerDlgBase )
                 EVT_TIMER( ID_TICK_TIMER, PlayerDlg::Tick)
 END_EVENT_TABLE()
 
+wxString FormatSecs(double secs) {
+    unsigned long hours = (int) secs / (60*60);
+    unsigned long mins = (int) secs / 60;
+    unsigned long remainingSecs = (int) secs % 60;
+
+    return wxString::Format(wxT("%03lu:%02lu:%02lu"), hours,mins, remainingSecs);
+}
+
 PlayerDlg::PlayerDlg(wxWindow *parent, wxString url) : PlayerDlgBase(parent){
     playing = false;
     loaded = false;
@@ -69,14 +77,6 @@ double PlayerDlg::GetElapsedTime() {
 
 double PlayerDlg::GetElapsedPercentage() {
     return (GetElapsedTime()/GetLength())*100;
-}
-
-wxString PlayerDlg::FormatSecs(double secs) {
-    unsigned long hours = (int) secs / (60*60);
-    unsigned long mins = (int) secs / 60;
-    unsigned long remainingSecs = (int) secs % 60;
-
-    return wxString::Format(wxT("%03lu:%02lu:%02lu"), hours,mins, remainingSecs);
 }
 
 PlayerDlg::~PlayerDlg() {

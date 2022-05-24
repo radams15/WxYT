@@ -8,8 +8,8 @@ project(WxYT C CXX)
 
 set(CMAKE_CXX_STANDARD 11)
 
-option(HEADERBAR "Uses unified titlebar and toolbar (OSX/Gtk3 Only)" ON)
-option(GTK_STYLE "Uses libhandy (Gtk3) / libgranite (Gtk3) styling" ON)
+option(HEADERBAR "Uses unified titlebar and toolbar (OSX/Gtk3 Only)" OFF)
+option(GTK_STYLE "Uses libhandy (Gtk3) / libgranite (Gtk3) styling" OFF)
 option(WX_PLAYER "Uses wxMediaCtrl to play videos" OFF)
 option(VLC_PLAYER "Uses libvlc to play videos" ON)
 
@@ -68,18 +68,18 @@ if(UNIX AND NOT APPLE)
     endif()
 endif()
 
-include_directories(${INCLUDE_DIRS} lib/libyt/include)
-link_directories(${LINK_DIRS} ${CMAKE_CURRENT_SOURCE_DIR}/lib/vlc)
-
-add_executable(WxYT MACOSX_BUNDLE ${SOURCE})
-
 if(${GTK3_FOUND})
     set(INCLUDE_DIRS ${INCLUDE_DIRS} ${GTK3_INCLUDE_DIRS})
     set(LINK_DIRS ${LINK_DIRS} ${GTK3_LIBRARIES})
     set(LIBS ${LIBS} ${GTK3_LIBRARIES})
 elseif(${Qt5_FOUND})
-        set(LIBS ${LIBS} Qt5::Widgets)
+    set(LIBS ${LIBS} Qt5::Widgets)
 endif()
+
+include_directories(${INCLUDE_DIRS} lib/libyt/include)
+link_directories(${LINK_DIRS} ${CMAKE_CURRENT_SOURCE_DIR}/lib/vlc)
+
+add_executable(WxYT MACOSX_BUNDLE ${SOURCE})
 
 if(HEADERBAR)
     message("Using headerbar")

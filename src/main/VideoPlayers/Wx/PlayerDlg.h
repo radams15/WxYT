@@ -22,8 +22,6 @@ private:
     void OnLoaded(wxMediaEvent& event);
     void Tick(wxTimerEvent& event);
 
-    wxString FormatSecs(double secs);
-
     enum {
         ID_TICK_TIMER
     };

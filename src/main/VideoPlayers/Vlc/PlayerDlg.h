@@ -11,6 +11,12 @@
 class PlayerDlg : public wxFrame {
 
 private:
+    enum{
+        myID_PLAYPAUSE,
+        myID_STOP,
+        myID_TIMELINE
+    };
+
     void initVLC();
 
     void OnPlayPause(wxCommandEvent& event);
@@ -18,9 +24,6 @@ private:
     void OnPositionChanged_USR(wxCommandEvent& event);
     void OnPositionChanged_VLC(wxCommandEvent& event);
     void OnEndReached_VLC(wxCommandEvent& event);
-    void OnVolumeChanged(wxCommandEvent& event);
-    void OnVolumeClicked(wxMouseEvent& event);
-    void OnTimelineClicked(wxMouseEvent& event);
 
     void play();
     void pause();
@@ -31,8 +34,9 @@ private:
     wxButton *playpause_button;
     wxButton *stop_button;
     wxSlider *timeline;
-    wxSlider *volume_slider;
     wxWindow *player_widget;
+
+    wxStaticText* PosLbl;
 
     libvlc_media_player_t *media_player;
     libvlc_instance_t *vlc_inst;
