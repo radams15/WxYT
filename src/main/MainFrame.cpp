@@ -23,7 +23,7 @@
 #endif
 
 BEGIN_EVENT_TABLE( MainFrame, MainFrameBase )
-                EVT_COMMAND(wxID_ANY, wxEVT_VID_THREAD_COMPLETED, MainFrame::OnVidThreadComplete)
+                EVT_COMMAND(wxID_ANY, EVT_VID_THREAD_COMPLETED, MainFrame::OnVidThreadComplete)
 END_EVENT_TABLE()
 
 extern "C" void tweak(void* window);
@@ -114,6 +114,7 @@ void MainFrame::LoadAll() {
     if(CurrentThread == NULL) {
         ShowLoading();
         CurrentThread = new GetVidThread(this, conf, NULL);
+        CurrentThread->Create();
         CurrentThread->Run();
     }
 
@@ -127,6 +128,7 @@ void MainFrame::LoadChannel(Channel_t *channel) {
         ShowLoading();
 
         CurrentThread = new GetVidThread(this, conf, channel);
+        CurrentThread->Create();
         CurrentThread->Run();
     }
 

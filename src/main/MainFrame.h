@@ -11,7 +11,7 @@
 #include "GetVidThread.h"
 
 class MainFrame : public MainFrameBase {
-wxDECLARE_EVENT_TABLE();
+DECLARE_EVENT_TABLE();
 
 private:
     Config* conf;

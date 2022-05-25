@@ -8,7 +8,7 @@
 #include <wx/wx.h>
 #include "Channel.h"
 
-wxDECLARE_EVENT(wxEVT_VID_THREAD_COMPLETED, wxCommandEvent);
+DECLARE_EVENT_TYPE(EVT_VID_THREAD_COMPLETED, wxID_ANY);
 
 class GetVidThread : public wxThread {
 private:

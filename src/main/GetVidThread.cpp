@@ -4,7 +4,9 @@
 
 #include "GetVidThread.h"
 
-wxDEFINE_EVENT(wxEVT_VID_THREAD_COMPLETED, wxCommandEvent);
+#include <wx/event.h>
+
+DEFINE_EVENT_TYPE(EVT_VID_THREAD_COMPLETED);
 
 GetVidThread::GetVidThread(wxFrame* parent, Config_t* conf, Channel_t *channel) : wxThread(wxTHREAD_DETACHED){
     this->conf = conf;
@@ -21,10 +23,12 @@ void* GetVidThread::Entry() {
         vids = channel_get_vids_list(channel, conf);
     }
 
-    wxCommandEvent* retEvt = new wxCommandEvent(wxEVT_VID_THREAD_COMPLETED);
+    wxCommandEvent* retEvt = new wxCommandEvent(EVT_VID_THREAD_COMPLETED);
     retEvt->SetClientData(vids);
 
-    wxQueueEvent(handler, retEvt);
+    //wxQueueEvent(handler, retEvt);
+
+    wxPostEvent(handler, *((wxEvent*) retEvt));
 
     return (void*) wxID_OK;
 }
