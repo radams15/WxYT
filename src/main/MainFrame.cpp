@@ -110,20 +110,15 @@ void MainFrame::ClearList() {
 }
 
 void MainFrame::LoadAll() {
-    //List_t* vids = config_get_vids_list(conf);
     if(CurrentThread == NULL) {
         ShowLoading();
         CurrentThread = new GetVidThread(this, conf, NULL);
         CurrentThread->Create();
         CurrentThread->Run();
     }
-
-    //LoadVideos(vids);
 }
 
 void MainFrame::LoadChannel(Channel_t *channel) {
-    //List_t* vids = channel_get_vids_list(channel, conf);
-
     if(CurrentThread == NULL) {
         ShowLoading();
 
@@ -131,8 +126,6 @@ void MainFrame::LoadChannel(Channel_t *channel) {
         CurrentThread->Create();
         CurrentThread->Run();
     }
-
-    //LoadVideos(vids);
 }
 
 void MainFrame::OnSearch(wxCommandEvent &event) {
