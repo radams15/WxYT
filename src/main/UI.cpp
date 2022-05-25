@@ -17,6 +17,9 @@ BEGIN_EVENT_TABLE( MainFrameBase, wxFrame )
 	EVT_TOOL( ID_HOME, MainFrameBase::_wxFB_OnHome )
 	EVT_TOOL( ID_CHANNEL, MainFrameBase::_wxFB_OnChannel )
 	EVT_TOOL( ID_SEARCH, MainFrameBase::_wxFB_OnSearch )
+	EVT_MENU( ID_HOME, MainFrameBase::_wxFB_OnHome )
+	EVT_MENU( ID_CHANNEL, MainFrameBase::_wxFB_OnChannel )
+	EVT_MENU( ID_SEARCH, MainFrameBase::_wxFB_OnSearch )
 END_EVENT_TABLE()
 
 MainFrameBase::MainFrameBase( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxFrame( parent, id, title, pos, size, style )
@@ -26,18 +29,18 @@ MainFrameBase::MainFrameBase( wxWindow* parent, wxWindowID id, const wxString& t
 	wxBoxSizer* bSizer1;
 	bSizer1 = new wxBoxSizer( wxVERTICAL );
 
-	MainTB = new wxToolBar( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTB_HORIZONTAL|wxTB_TEXT );
-	HomeBtn = MainTB->AddTool( ID_HOME, wxT("Home"), home_png_to_wx_bitmap(), wxNullBitmap, wxITEM_NORMAL, wxEmptyString, wxT("Goes home to all subscriptions"), NULL );
+	ToolBar = new wxToolBar( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTB_HORIZONTAL|wxTB_TEXT );
+	HomeBtn = ToolBar->AddTool( ID_HOME, wxT("Home"), home_png_to_wx_bitmap(), wxNullBitmap, wxITEM_NORMAL, wxEmptyString, wxT("Goes home to all subscriptions"), NULL );
 
-	ChannelBtn = MainTB->AddTool( ID_CHANNEL, wxT("Channel"), channel_png_to_wx_bitmap(), wxNullBitmap, wxITEM_NORMAL, wxEmptyString, wxT("Selects the channel to view"), NULL );
+	ChannelBtn = ToolBar->AddTool( ID_CHANNEL, wxT("Channel"), channel_png_to_wx_bitmap(), wxNullBitmap, wxITEM_NORMAL, wxEmptyString, wxT("Selects the channel to view"), NULL );
 
-	MainTB->AddSeparator();
+	ToolBar->AddSeparator();
 
-	SearchBtn = MainTB->AddTool( ID_SEARCH, wxT("Search"), search_png_to_wx_bitmap(), wxNullBitmap, wxITEM_NORMAL, wxEmptyString, wxT("Search for channels or videos"), NULL );
+	SearchBtn = ToolBar->AddTool( ID_SEARCH, wxT("Search"), search_png_to_wx_bitmap(), wxNullBitmap, wxITEM_NORMAL, wxEmptyString, wxT("Search for channels or videos"), NULL );
 
-	MainTB->Realize();
+	ToolBar->Realize();
 
-	bSizer1->Add( MainTB, 1, wxEXPAND, 5 );
+	bSizer1->Add( ToolBar, 1, wxEXPAND, 5 );
 
 	VidScrollWin = new wxScrolledWindow( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxHSCROLL|wxVSCROLL );
 	VidScrollWin->SetScrollRate( 5, 5 );
@@ -53,6 +56,24 @@ MainFrameBase::MainFrameBase( wxWindow* parent, wxWindowID id, const wxString& t
 	this->SetSizer( bSizer1 );
 	this->Layout();
 	m_statusBar1 = this->CreateStatusBar( 1, 0, wxID_ANY );
+	MenuBar = new wxMenuBar( 0 );
+	GoMenu = new wxMenu();
+	wxMenuItem* HomeMenuItm;
+	HomeMenuItm = new wxMenuItem( GoMenu, ID_HOME, wxString( wxT("Home") ) , wxEmptyString, wxITEM_NORMAL );
+	GoMenu->Append( HomeMenuItm );
+
+	wxMenuItem* ChannelMenuItm;
+	ChannelMenuItm = new wxMenuItem( GoMenu, ID_CHANNEL, wxString( wxT("Channel") ) , wxEmptyString, wxITEM_NORMAL );
+	GoMenu->Append( ChannelMenuItm );
+
+	wxMenuItem* SearchMenuItm;
+	SearchMenuItm = new wxMenuItem( GoMenu, ID_SEARCH, wxString( wxT("Search") ) , wxEmptyString, wxITEM_NORMAL );
+	GoMenu->Append( SearchMenuItm );
+
+	MenuBar->Append( GoMenu, wxT("Go") );
+
+	this->SetMenuBar( MenuBar );
+
 
 	this->Centre( wxBOTH );
 }

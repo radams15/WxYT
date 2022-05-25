@@ -22,6 +22,10 @@
 #include "VideoPlayers/Vlc/PlayerDlg.h"
 #endif
 
+BEGIN_EVENT_TABLE( MainFrame, MainFrameBase )
+                EVT_COMMAND(wxID_ANY, wxEVT_VID_THREAD_COMPLETED, MainFrame::OnVidThreadComplete)
+END_EVENT_TABLE()
+
 extern "C" void tweak(void* window);
 
 static pthread_mutex_t mutex;
@@ -30,6 +34,16 @@ MainFrame::MainFrame(Config* config, wxWindow *parent, wxWindowID id, const wxSt
                      long style) : MainFrameBase(parent, id, title, pos, size, style){
 
     this->conf = config;
+    CurrentThread = NULL;
+
+#if defined(__apple__)
+
+#elif defined(__linux)
+    MenuBar->Show(false);
+#else
+    ToolBar->Show(false);
+#endif
+
 
 #ifdef __WXCOCOA__
     NSWindow* win = MacGetTopLevelWindowRef();
@@ -96,15 +110,27 @@ void MainFrame::ClearList() {
 }
 
 void MainFrame::LoadAll() {
-    List_t* vids = config_get_vids_list(conf);
+    //List_t* vids = config_get_vids_list(conf);
+    if(CurrentThread == NULL) {
+        ShowLoading();
+        CurrentThread = new GetVidThread(this, conf, NULL);
+        CurrentThread->Run();
+    }
 
-    LoadVideos(vids);
+    //LoadVideos(vids);
 }
 
 void MainFrame::LoadChannel(Channel_t *channel) {
-    List_t* vids = channel_get_vids_list(channel, conf);
+    //List_t* vids = channel_get_vids_list(channel, conf);
 
-    LoadVideos(vids);
+    if(CurrentThread == NULL) {
+        ShowLoading();
+
+        CurrentThread = new GetVidThread(this, conf, channel);
+        CurrentThread->Run();
+    }
+
+    //LoadVideos(vids);
 }
 
 void MainFrame::OnSearch(wxCommandEvent &event) {
@@ -147,4 +173,23 @@ void MainFrame::LoadChannels(List_t *list) {
     for(int i=0 ; i<list->length ; i++){
         AddChannel(channels_get(list, i));
     }
+}
+
+void MainFrame::OnVidThreadComplete(wxCommandEvent &event) {
+    printf("Done!\n");
+
+    List_t* lst = (List_t*) event.GetClientData();
+
+    CurrentThread = NULL;
+    HideLoading();
+
+    LoadVideos(lst);
+}
+
+void MainFrame::ShowLoading() {
+    wxWindow::SetCursor(*wxHOURGLASS_CURSOR);
+}
+
+void MainFrame::HideLoading() {
+    wxWindow::SetCursor(*wxSTANDARD_CURSOR);
 }

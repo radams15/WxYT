@@ -6,11 +6,16 @@
 #define GEMCLIENT_MAINFRAME_H
 
 #include <Config.h>
+
 #include "UI.h"
+#include "GetVidThread.h"
 
 class MainFrame : public MainFrameBase {
+wxDECLARE_EVENT_TABLE();
+
 private:
     Config* conf;
+    GetVidThread* CurrentThread;
 
     void ClearList();
 
@@ -21,6 +26,9 @@ private:
     void LoadVideos(List_t* list);
 
     void LoadChannels(List_t* list);
+
+    void ShowLoading();
+    void HideLoading();
 
 protected:
 
@@ -33,6 +41,7 @@ public:
 
     void PlayVideo(Video_t* video);
     void LoadChannel(Channel_t* channel);
+    void OnVidThreadComplete( wxCommandEvent& event );
 };
 
 

@@ -10,8 +10,8 @@ set(CMAKE_CXX_STANDARD 11)
 
 option(HEADERBAR "Uses unified titlebar and toolbar (OSX/Gtk3 Only)" OFF)
 option(GTK_STYLE "Uses libhandy (Gtk3) / libgranite (Gtk3) styling" OFF)
-option(WX_PLAYER "Uses wxMediaCtrl to play videos" OFF)
-option(VLC_PLAYER "Uses libvlc to play videos" ON)
+option(WX_PLAYER "Uses wxMediaCtrl to play videos" ON)
+option(VLC_PLAYER "Uses libvlc to play videos" OFF)
 
 
 set(WX_COMPONENTS core base adv)
@@ -29,7 +29,7 @@ add_subdirectory(lib/libyt)
 
 include(${wxWidgets_USE_FILE})
 
-set(SOURCE src/main/main.cpp src/main/MainApp.cpp src/main/UI.cpp src/main/UI.cpp src/main/MainFrame.cpp src/main/MainFrame.h src/main/VideoBox.cpp src/main/VideoBox.h src/main/specific/SearchDlg.cpp src/main/SearchDlg.h src/main/ChannelBox.cpp src/main/ChannelBox.h)
+set(SOURCE src/main/main.cpp src/main/MainApp.cpp src/main/UI.cpp src/main/UI.cpp src/main/MainFrame.cpp src/main/MainFrame.h src/main/VideoBox.cpp src/main/VideoBox.h src/main/specific/SearchDlg.cpp src/main/SearchDlg.h src/main/ChannelBox.cpp src/main/ChannelBox.h src/main/GetVidThread.cpp src/main/GetVidThread.h)
 set(LIBS ${wxWidgets_LIBRARIES} -L${CMAKE_SOURCE_DIR}/lib pthread)
 set(INCLUDE DIRS "")
 set(LINK_DIRS "")
@@ -113,3 +113,7 @@ endif()
 target_include_directories(WxYT PRIVATE lib/libyt lib/vlc)
 
 target_link_libraries(WxYT yt request ${LIBS})
+
+install(TARGETS WxYT DESTINATION bin)
+install(FILES data/WxYT.desktop DESTINATION share/applications)
+install(FILES data/WxYT.png DESTINATION share/icons/hicolor/128x128/apps)

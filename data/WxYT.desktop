@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=WxYT
+Comment=Simple youtube client for old and new devices.
+Keywords=youtube;wxyt;yt;
+Icon=WxYT
+Exec=WxYT
+Type=Application
+Categories=AudioVideo;Video;

@@ -21,6 +21,7 @@
 #include <wx/sizer.h>
 #include <wx/scrolwin.h>
 #include <wx/statusbr.h>
+#include <wx/menu.h>
 #include <wx/frame.h>
 #include <wx/stattext.h>
 #include <wx/button.h>
@@ -53,13 +54,15 @@ class MainFrameBase : public wxFrame
 			ID_SEARCH
 		};
 
-		wxToolBar* MainTB;
+		wxToolBar* ToolBar;
 		wxToolBarToolBase* HomeBtn;
 		wxToolBarToolBase* ChannelBtn;
 		wxToolBarToolBase* SearchBtn;
 		wxScrolledWindow* VidScrollWin;
 		wxBoxSizer* VideoList;
 		wxStatusBar* m_statusBar1;
+		wxMenuBar* MenuBar;
+		wxMenu* GoMenu;
 
 		// Virtual event handlers, override them in your derived class
 		virtual void OnHome( wxCommandEvent& event ) { event.Skip(); }
