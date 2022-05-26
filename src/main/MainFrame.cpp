@@ -166,13 +166,17 @@ void MainFrame::LoadChannels(List_t *list) {
     ClearList();
 
     for(int i=0 ; i<list->length ; i++){
-        AddChannel(channels_get(list, i));
+        Channel_t* c = channels_get(list, i);
+
+        if(c == NULL){
+            continue;
+        }
+
+        AddChannel(c);
     }
 }
 
 void MainFrame::OnVidThreadComplete(wxCommandEvent &event) {
-    printf("Done!\n");
-
     List_t* lst = (List_t*) event.GetClientData();
 
     CurrentThread = NULL;
