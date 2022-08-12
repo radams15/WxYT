@@ -9,10 +9,13 @@ extern "C" void gtk_tweak_setup();
 MainApp::MainApp() : wxApp(){
     wxInitAllImageHandlers();
 
-    conf = config_new("../yt_saves.json.small", 0);
-    conf->invidious_inst = strdup("https://inv.riverside.rocks");
-    //conf = config_new("/home/rhys/.config/yt_saves.json.small", 0);
-    //conf = config_new("/home/rhys/.config/yt_saves.json", 0);
+    //conf = config_new("../yt_saves.json.small", 0);
+#if defined(__APPLE__)
+    conf = config_new("/Users/rhys/Library/yt_saves.json", 0);
+#else
+    conf = config_new("/home/rhys/.config/yt_saves.json", 0);
+#endif
+
     conf->use_threading = 1;
 
 #if defined(__WXGTK3__) && USE_HEADERBAR
@@ -29,7 +32,7 @@ bool MainApp::OnInit() {
 }
 
 MainApp::~MainApp() {
-    config_save(conf);
+    //config_save(conf);
 
-    //config_free(conf);
+    config_free(conf);
 }

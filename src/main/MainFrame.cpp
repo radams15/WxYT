@@ -77,13 +77,18 @@ void MainFrame::AddChannel(Channel_t *channel) {
 }
 
 void MainFrame::PlayVideo(Video_t *video) {
+    ShowLoading();
+
     const char* CVideo = video_get_playable(video, conf);
     wxString url = wxString::FromUTF8(CVideo);
     free((void*) CVideo);
 
-    std::cout << "Raw URL: " << url.mb_str() << std::endl;
+    //std::cout << "Raw URL: " << url.mb_str() << std::endl;
 
     PlayerDlg* player = new PlayerDlg(this, url);
+
+    HideLoading();
+
     player->Show();
 }
 
@@ -106,7 +111,7 @@ void MainFrame::ClearList() {
 
     VideoList->Clear();
 
-    VideoList->RecalcSizes();
+    //VideoList->RecalcSizes();
 }
 
 void MainFrame::LoadAll() {
@@ -137,6 +142,8 @@ void MainFrame::OnSearch(wxCommandEvent &event) {
 
     wxString query = dlg->GetQuery();
 
+    ShowLoading();
+
     switch(dlg->GetType()){
         case SearchDlg::TYPE_VIDEO: {
             List_t *vids = config_video_search_list(conf, query.ToUTF8(), 1);
@@ -152,6 +159,8 @@ void MainFrame::OnSearch(wxCommandEvent &event) {
         default:
             break;
     }
+
+    HideLoading();
 }
 
 void MainFrame::LoadVideos(List_t* list) {
@@ -180,15 +189,18 @@ void MainFrame::OnVidThreadComplete(wxCommandEvent &event) {
     List_t* lst = (List_t*) event.GetClientData();
 
     CurrentThread = NULL;
-    HideLoading();
 
     LoadVideos(lst);
+
+    HideLoading();
 }
 
 void MainFrame::ShowLoading() {
+    busyInfo = new wxBusyInfo(wxT("Loading..."));
     wxWindow::SetCursor(*wxHOURGLASS_CURSOR);
 }
 
 void MainFrame::HideLoading() {
+    delete busyInfo;
     wxWindow::SetCursor(*wxSTANDARD_CURSOR);
 }

@@ -6,6 +6,7 @@
 #define GEMCLIENT_MAINFRAME_H
 
 #include <Config.h>
+#include <wx/busyinfo.h>
 
 #include "UI.h"
 #include "GetVidThread.h"
@@ -16,6 +17,7 @@ DECLARE_EVENT_TABLE();
 private:
     Config* conf;
     GetVidThread* CurrentThread;
+    wxBusyInfo* busyInfo;
 
     void ClearList();
 

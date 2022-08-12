@@ -2,6 +2,10 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/lib/--force" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/lib/--force/lib/cJSON" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/lib/--force/lib/librequest" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/lib/--force/lib/librequest/lib/b64.c" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/lib/libyt" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/lib/libyt/lib/cJSON" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/lib/libyt/lib/librequest" vcs="Git" />

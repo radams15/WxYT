@@ -29,7 +29,7 @@ Channel_t* ChannelBox::GetChannel() {
 void ChannelBox::OnSubBtn(wxCommandEvent &event) {
     if(IsSubscribed()) {
         // Unsubscibe
-        config_subs_rm(conf, &channel);
+        //config_subs_rm(conf, &channel);
 
         SubBtn->SetLabel(wxT("Subscribe"));
     } else {
